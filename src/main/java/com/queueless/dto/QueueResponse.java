@@ -11,19 +11,22 @@ public class QueueResponse {
     private String description;
     private QueueStatus status;
     private LocalDateTime createdAt;
+    private Long organizationId;
 
     public QueueResponse(
             Long id,
             String name,
             String description,
             QueueStatus status,
-            LocalDateTime createdAt) {
+            LocalDateTime createdAt,
+            Long organizationId) {
 
         this.id = id;
         this.name = name;
         this.description = description;
         this.status = status;
         this.createdAt = createdAt;
+        this.organizationId = organizationId;
     }
 
     public Long getId() {
@@ -44,5 +47,9 @@ public class QueueResponse {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public Long getOrganizationId() {
+    return organizationId;
     }
 }

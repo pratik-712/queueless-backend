@@ -7,6 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
 import java.time.LocalDateTime;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
 
 @Entity
 public class Queue {
@@ -70,5 +72,17 @@ public class Queue {
     public void setStatus(QueueStatus status) {
         this.status = status;
     }
+
+    @ManyToOne
+    @JoinColumn(name = "organization_id", nullable = false)
+    private Organization organization;
+
+    public Organization getOrganization() {
+    return organization;
+}
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+}
     
 }

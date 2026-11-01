@@ -7,6 +7,7 @@ public class QueueRequest {
     private String name;
     private String description;
     private QueueStatus status;
+    private Long organizationId;
 
     public QueueRequest() {
     }
@@ -23,6 +24,10 @@ public class QueueRequest {
         return status;
     }
 
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -33,5 +38,9 @@ public class QueueRequest {
 
     public void setStatus(QueueStatus status) {
         this.status = status;
+    }
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
     }
 }

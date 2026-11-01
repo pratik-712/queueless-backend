@@ -37,6 +37,13 @@ public class QueueController {
         return queueService.getAllQueues();
     }
 
+        // Get queues by organization ID
+    @GetMapping("/organization/{organizationId}")
+    public List<QueueResponse> getQueuesByOrganizationId(
+            @PathVariable Long organizationId) {
+        return queueService.getQueuesByOrganizationId(organizationId);
+    }
+
     @GetMapping("/{id}")
     public QueueResponse getQueueById(@PathVariable Long id) {
         return queueService.getQueueById(id);

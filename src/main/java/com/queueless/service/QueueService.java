@@ -3,96 +3,134 @@ package com.queueless.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-import com.queueless.entity.Queue;
-import com.queueless.repository.QueueRepository;
+
 import com.queueless.dto.QueueRequest;
 import com.queueless.dto.QueueResponse;
 import com.queueless.dto.QueueUpdateRequest;
+import com.queueless.entity.Organization;
+import com.queueless.entity.Queue;
+import com.queueless.repository.OrganizationRepository;
+import com.queueless.repository.QueueRepository;
 
-@Service 
+@Service
 public class QueueService {
-    private final QueueRepository queueRepository;
 
-    public QueueService(QueueRepository queueRepository){
-        this.queueRepository=queueRepository;
+    private final QueueRepository queueRepository;
+    private final OrganizationRepository organizationRepository;
+
+    public QueueService(
+            QueueRepository queueRepository,
+            OrganizationRepository organizationRepository) {
+        this.queueRepository = queueRepository;
+        this.organizationRepository = organizationRepository;
     }
 
     public QueueResponse createQueue(QueueRequest request) {
 
-    Queue queue = new Queue(
-            request.getName(),
-            request.getDescription(),
-            request.getStatus()
-    );
+        Organization organization = organizationRepository
+                .findById(request.getOrganizationId())
+                .orElseThrow(() -> new RuntimeException("Organization not found"));
 
-    Queue savedQueue = queueRepository.save(queue);
+        Queue queue = new Queue(
+                request.getName(),
+                request.getDescription(),
+                request.getStatus()
+        );
 
-    return new QueueResponse(
-            savedQueue.getId(),
-            savedQueue.getName(),
-            savedQueue.getDescription(),
-            savedQueue.getStatus(),
-            savedQueue.getCreatedAt()
-    );
-}
+        queue.setOrganization(organization);
 
+        Queue savedQueue = queueRepository.save(queue);
+
+        return new QueueResponse(
+                savedQueue.getId(),
+                savedQueue.getName(),
+                savedQueue.getDescription(),
+                savedQueue.getStatus(),
+                savedQueue.getCreatedAt(),
+                savedQueue.getOrganization().getId()
+        );
+    }
+
+    // Get all queues
     public List<QueueResponse> getAllQueues() {
 
-    List<Queue> queues = queueRepository.findAll();
+        List<Queue> queues = queueRepository.findAll();
 
-    return queues.stream()
-            .map(queue -> new QueueResponse(
-                    queue.getId(),
-                    queue.getName(),
-                    queue.getDescription(),
-                    queue.getStatus(),
-                    queue.getCreatedAt()
-            ))
-            .toList();
+        return queues.stream()
+                .map(queue -> new QueueResponse(
+                        queue.getId(),
+                        queue.getName(),
+                        queue.getDescription(),
+                        queue.getStatus(),
+                        queue.getCreatedAt(),
+                        queue.getOrganization().getId()
+                ))
+                .toList();
     }
 
+        // Get queues by organization ID
+    public List<QueueResponse> getQueuesByOrganizationId(Long organizationId) {
+
+        List<Queue> queues = queueRepository.findByOrganizationId(organizationId);
+
+        return queues.stream()
+                .map(queue -> new QueueResponse(
+                        queue.getId(),
+                        queue.getName(),
+                        queue.getDescription(),
+                        queue.getStatus(),
+                        queue.getCreatedAt(),
+                        queue.getOrganization().getId()
+                ))
+                .toList();
+    }
+
+    // Get a queue by ID
     public QueueResponse getQueueById(Long id) {
 
-    Queue queue = queueRepository.findById(id).orElse(null);
+        Queue queue = queueRepository.findById(id).orElse(null);
 
-    if (queue == null) {
-        return null;
+        if (queue == null) {
+            return null;
+        }
+
+        return new QueueResponse(
+                queue.getId(),
+                queue.getName(),
+                queue.getDescription(),
+                queue.getStatus(),
+                queue.getCreatedAt(),
+                queue.getOrganization().getId()
+        );
     }
 
-    return new QueueResponse(
-            queue.getId(),
-            queue.getName(),
-            queue.getDescription(),
-            queue.getStatus(),
-            queue.getCreatedAt()
-    );
-}
-
+    // Update a queue
     public QueueResponse updateQueue(Long id, QueueUpdateRequest request) {
 
-    Queue existingQueue = queueRepository.findById(id).orElse(null);
+        Queue existingQueue = queueRepository.findById(id).orElse(null);
 
-    if (existingQueue == null) {
-        return null;
+        if (existingQueue == null) {
+            return null;
+        }
+
+        existingQueue.setName(request.getName());
+        existingQueue.setDescription(request.getDescription());
+        existingQueue.setStatus(request.getStatus());
+
+        Queue updatedQueue = queueRepository.save(existingQueue);
+
+        return new QueueResponse(
+                updatedQueue.getId(),
+                updatedQueue.getName(),
+                updatedQueue.getDescription(),
+                updatedQueue.getStatus(),
+                updatedQueue.getCreatedAt(),
+                updatedQueue.getOrganization().getId()
+        );
     }
 
-    existingQueue.setName(request.getName());
-    existingQueue.setDescription(request.getDescription());
-    existingQueue.setStatus(request.getStatus());
-
-    Queue updatedQueue = queueRepository.save(existingQueue);
-
-    return new QueueResponse(
-            updatedQueue.getId(),
-            updatedQueue.getName(),
-            updatedQueue.getDescription(),
-            updatedQueue.getStatus(),
-            updatedQueue.getCreatedAt()
-    );
-}
+    // Delete a queue
     public void deleteQueue(Long id) {
         queueRepository.deleteById(id);
     }
 }
-
-
